@@ -107,6 +107,8 @@ def get_school_stats(school_index):
     print(f"Mean enrollment for Grade 12: {mean_enrollment_grade12}")
     print(f"Highest enrollment for a single grade: {highest_enrollment}")
     print(f"Lowest enrollment for a single grade: {lowest_enrollment}")
+
+    # Iterate over the array to print the enrollment for each year
     for year, enrollment in zip(range(2013, 2023), total_enrollment_each_year):
         print(f"Total enrollment for {year}: {enrollment}")
     print(f"Total ten year enrollment: {total_ten_year_enrollment}")
@@ -147,18 +149,22 @@ def main():
     print("Shape of full data array: ", reshaped_data.shape)
     print("Dimensions of full data array: ", reshaped_data.ndim)
 
-    # Prompt for user input
-    school_input = input("Please enter the high school name or school code: ")
+    # Exception handling using a while loop:
+    # If the users input the invalid school names or codes,
+    # the program will ask them to input again.
+    while True:
+        # Prompt for user input
+        school_input = input("Please enter the high school name or school code: ")
+        try:
+            school_index = get_school_index(school_input)
+            break
+        except ValueError as e:
+            print(e)
 
     # Print Stage 2 requirements here
     print("\n***Requested School Statistics***\n")
-
-    # Exception handling: If there is no ValueError, then it will call the functions defined above.
-    try:
-        school_index = get_school_index(school_input)
-        get_school_stats(school_index)
-    except ValueError as e:
-        print(e)
+    # Call the function defined above to get the statistics of a specific school.
+    get_school_stats(school_index)
 
     # Print Stage 3 requirements here
     print("\n***General Statistics for All Schools***\n")
