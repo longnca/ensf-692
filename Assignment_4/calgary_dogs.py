@@ -15,24 +15,11 @@ def main():
     # Import data here
     df = pd.read_excel("CalgaryDogBreeds.xlsx")
 
-    # # Check the first 5 rows of DF
-    # print(df.head())
-
-    # # My personal check: a quick EDA of the dataset
-    # print(df.info())              # Check the info of the dataframe
-    # print(df['Year'].unique())    # Check the unique values in the column Year
-    # print(df['Month'].unique())   # Check the unique values in the column Month
-    # print(df['Breed'].unique())   # Check the unique values in the column Breed
-    # print(df['Breed'].nunique())  # Check the number of unique values in the column Breed
-    # print(df.isnull().sum())      # Check the total number of unique values in all columns
-
     # Set and sort the multi-index for the DF
-    # I chose the column 'Breed' as the primary index since it's easier for data access and analysis in the next step.
+    # I chose the column 'Breed' as the primary index since it's easier for
+    # data access and analysis in the next step.
     df.set_index(['Breed', 'Year', 'Month'], inplace=True)
     df.sort_index(inplace=True)
-
-    # # Check the DataFrame after setting the multi-index if needed
-    # print(df.head())
 
     print("\nENSF 692 Dogs of Calgary")
 
@@ -45,19 +32,24 @@ def main():
 
 def get_user_input(df):
     """
+    Take the user input and accept all entries in uppercase, lowercase,
+    camel case, and mixed case by converting them to uppercase.
 
-    :param df:
-    :return:
+    Parameter:
+        df (pd.DataFrame): the DataFrame loaded by reading the Excel dataset.
+
+    Return:
+        str: The String input if the value is found in the 'Breed' index.
+        If not found, raise a KeyError exception and continue the while loop.
     """
     while True:
         try:
-            # Take the user input and convert it to uppercase
+            # Take the user input and convert it to uppercase.
             user_input = input("Please enter a dog breed: ").upper()
             # Check if the breed exists in the index
             if user_input in df.index.get_level_values('Breed'):
                 return user_input
             else:
-                # If the dog breed is not found, raise a KeyError exception
                 raise KeyError
         except KeyError as e:
             print("Dog breed not found in the data. Please try again.")
@@ -65,34 +57,52 @@ def get_user_input(df):
 
 def calculate_breed_stats(df, breed):
     """
+    Calculate all the statistics that are required in Stage 3 (Data Analysis).
 
-    :param df:
-    :param breed:
+    Parameters:
+        df (pd.DataFrame): the DataFrame loaded by reading the Excel dataset.
+        breed (str): The dog breed taken from the user input.
+
+    Return:
+        None
     """
-    # Extract the specific breed name
-    breed_data = df.loc[pd.IndexSlice[breed, :, :]]
+    # Use the IndexSlice object to slice the DF.
+    idx = pd.IndexSlice
 
-    # Find all the years from the 'year' index of the breed input
+    # 3.1. Find all the years from the 'year' index of the breed input.
+    # Extract the specific breed name.
+    breed_data = df.loc[idx[breed, :, :]]
+    # Find and combine all the years of the selected breed.
     breed_years = ", ".join(map(str, breed_data.index.get_level_values('Year').unique()))
-    # Find and print all years if he selected breed was found
+    # Print the results.
     print(f"The {breed} was found in the top breeds for years: {breed_years}. ")
 
-    # Calculate and print the total number of registrations of the selected breed found
-    total_breed_found = breed_data['Total'].sum()
-    print(f"There have been {total_breed_found} {breed} dogs registered total.")
+    # 3.2. Calculate the total number of registrations of the selected breed found.
+    total_breed_all_years = breed_data['Total'].sum()
+    print(f"There have been {total_breed_all_years} {breed} dogs registered total.")
 
-    # Calculate and print the percentage of selected breed registrations for each year
-    # Create a list of the years from the original DF in the Excel file
+    # 3.3. Calculate the percentage of selected breed registrations for each year.
+    # Set the list of all expected years in the DataFrame
     years = [2021, 2022, 2023]
-    # Iterate over the list of years to calculate the total/percentage of the selected breed
     for year in years:
-        try:
-            total_dogs_per_year = df.loc[pd.IndexSlice[:, year, :], 'Total'].sum()
-            selected_breed_per_year = breed_data.loc[pd.IndexSlice[:, year, :], 'Total'].sum()
-            percentage_breed_per_year = (selected_breed_per_year / total_dogs_per_year) * 100
-            print(f"The {breed} was {percentage_breed_per_year:.5f}% of top breeds in {year}.")
-        except KeyError as e:
-            print(f"Error accessing data for the year {year}: {e}")
+        total_dogs_per_year = df.loc[idx[:, year, :], 'Total'].sum()
+        selected_breed_per_year = df.loc[idx[breed, year, :], 'Total'].sum()
+        percentage_breed_per_year = round((selected_breed_per_year / total_dogs_per_year) * 100, 6)
+        print(f"The {breed} was {percentage_breed_per_year}% of top breeds in {year}.")
+
+    # 3.4. Calculate the percentage of selected breed registrations across all years.
+    total_dogs_all_years = df.loc[idx[:, years, :], 'Total'].sum()
+    percentage_breed_all_years = round((total_breed_all_years / total_dogs_all_years) * 100, 6)
+    print(f"The {breed} was {percentage_breed_all_years}% of top breeds across all years.")
+
+    # 3.5. Find the months that were most popular for the selected breed.
+    # Calculate the registrations grouped by Months.
+    breed_months = breed_data.groupby('Month')['Total'].sum()
+    # Calculate the average values in the Series of the Months.
+    mean_registration = breed_months.mean()
+    # Filter the months that have more registrations than the average.
+    popular_months = breed_months[breed_months >= mean_registration].index.tolist()
+    print(f"Most popular month(s) for {breed} dogs: {', '.join(popular_months)}")
 
 
 if __name__ == '__main__':
