@@ -15,11 +15,22 @@ def main():
     # Import data here
     df = pd.read_excel("CalgaryDogBreeds.xlsx")
 
+    # # My personal EDA check
+    # print(df.head())
+    # print(df.info())
+    # print("The unique values of Year: ", df['Year'].unique())
+    # print("The unique values of Month: ", df['Month'].unique())
+    # print("The unique values of Breed: ", df['Breed'].unique())
+    # print("Number of unique values of Breed: ", df['Breed'].nunique())
+
     # Set and sort the multi-index for the DF
     # I chose the column 'Breed' as the primary index since it's easier for
     # data access and analysis in the next step.
     df.set_index(['Breed', 'Year', 'Month'], inplace=True)
     df.sort_index(inplace=True)
+
+    # # Optional: check the DF after setting and sorting multi-index
+    # print(df.head(10))
 
     print("\nENSF 692 Dogs of Calgary")
 
