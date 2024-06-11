@@ -22,6 +22,7 @@ def main():
     # print("The unique values of Month: ", df['Month'].unique())
     # print("The unique values of Breed: ", df['Breed'].unique())
     # print("Number of unique values of Breed: ", df['Breed'].nunique())
+    # print(df.isnull().sum())
 
     # Set and sort the multi-index for the DF
     # I chose the column 'Breed' as the primary index since it's easier for
@@ -109,12 +110,12 @@ def calculate_breed_stats(df, breed):
     # 3.5. Find the months that were most popular for the selected breed.
     # Calculate the registrations grouped by Months.
     breed_months = breed_data.groupby('Month').count()
-    # Sort the values by the 'Total' count of occurrences
+    # Sort the values by the 'Total' count of occurrences.
     sorted_breed_months = breed_months.sort_values(by='Total', ascending=False)
     # print(sorted_breed_months)
-    # Find the maximum count of occurrences
+    # Find the maximum count of occurrences.
     max_occurrences = sorted_breed_months['Total'].max()
-    # Filter the months that have more registrations than the average.
+    # Filter the months that have the max occurrences.
     popular_months = sorted_breed_months[sorted_breed_months['Total'] == max_occurrences].index.tolist()
     print(f"Most popular month(s) for {breed} dogs: {', '.join(popular_months)}")
 
