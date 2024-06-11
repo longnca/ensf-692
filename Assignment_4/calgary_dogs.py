@@ -111,7 +111,7 @@ def calculate_breed_stats(df, breed):
     breed_months = breed_data.groupby('Month').count()
     # Sort the values by the 'Total' count of occurrences
     sorted_breed_months = breed_months.sort_values(by='Total', ascending=False)
-    print(sorted_breed_months)
+    # print(sorted_breed_months)
     # Find the maximum count of occurrences
     max_occurrences = sorted_breed_months['Total'].max()
     # Filter the months that have more registrations than the average.
