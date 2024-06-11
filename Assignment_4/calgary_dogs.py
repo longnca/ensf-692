@@ -108,11 +108,14 @@ def calculate_breed_stats(df, breed):
 
     # 3.5. Find the months that were most popular for the selected breed.
     # Calculate the registrations grouped by Months.
-    breed_months = breed_data.groupby('Month')['Total'].sum()
-    # Calculate the average values in the Series of the Months.
-    mean_registration = breed_months.mean()
+    breed_months = breed_data.groupby('Month').count()
+    # Sort the values by the 'Total' count of occurrences
+    sorted_breed_months = breed_months.sort_values(by='Total', ascending=False)
+    print(sorted_breed_months)
+    # Find the maximum count of occurrences
+    max_occurrences = sorted_breed_months['Total'].max()
     # Filter the months that have more registrations than the average.
-    popular_months = breed_months[breed_months >= mean_registration].index.tolist()
+    popular_months = sorted_breed_months[sorted_breed_months['Total'] == max_occurrences].index.tolist()
     print(f"Most popular month(s) for {breed} dogs: {', '.join(popular_months)}")
 
 
