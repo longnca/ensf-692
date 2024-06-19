@@ -1,25 +1,25 @@
 # web_data_app.py
 # June 2024
-# Modified by: STUDENT NAME
+# Modified by: Long Nguyen
 #
 # An simple program for demonstrating web applications using Flask and web scraping of data using Beautiful Soup.
 # Detailed specifications are provided via the Assignment 5 README file.
 
 
-import pandas as pd     # needed for data manipulation
+import pandas as pd  # needed for data manipulation
 
-from flask import Flask, render_template    # needed for web app
+from flask import Flask, render_template  # needed for web app
 
-from bs4 import BeautifulSoup               # needed for web scraping
+from bs4 import BeautifulSoup  # needed for web scraping
 import requests
 
-from datetime import datetime               # needed for time/regular expressions
+from datetime import datetime  # needed for time/regular expressions
 import re
-
 
 ###
 # Initialize our FLASK application object from the Flask class like so:
 app = Flask(__name__)
+
 
 @app.route("/")
 def index():
@@ -37,6 +37,7 @@ def index():
 def hello_there(name):
     """
     This route shows a bit more of what we can do, including some 'REST'full user 
+    This route shows a bit more of what we can do, including some 'REST'full user
     interaction.  If a user specifies a name in the url like so: http://localhost:5000/hello/supercoder
     the response will include the value 'supercoder' in the `name` variable, and 
     can then be validated with the RE `match_object` output.  If an invalid value is specified
@@ -69,8 +70,8 @@ def book_data():
     # Always check to make sure that you are web scraping legally and ethically.
     # The following site was specifically created to practice web scraping.
     source = requests.get("http://books.toscrape.com/")
-    soup = BeautifulSoup(source.content, 'html.parser')     # Use BeautifulSoup to parse the website html code
-    book_results = soup.find_all(attrs={'class':'product_pod'})  # By inspecting the site, we know books = product_pod class
+    soup = BeautifulSoup(source.content, 'html.parser')  # Use BeautifulSoup to parse the website html code
+    book_results = soup.find_all(attrs={'class': 'product_pod'})  # By inspecting the site, we know books = product_pod class
 
     titles = []
     prices = []
@@ -81,14 +82,22 @@ def book_data():
         prices.append(float(book.find('p', class_="price_color").text[1:]))
 
     # Create a DataFrame using the two lists
-    book_data = pd.DataFrame(list(zip(titles, prices)), columns=['Titles','Prices'])    
-    print(book_data)        # Print to the terminal as confirmation - only we can see this
+    book_data = pd.DataFrame(list(zip(titles, prices)), columns=['Titles', 'Prices'])
+
+    # Add 'Sale Price' column with 25% discount
+    book_data['Sale Price'] = book_data['Prices'] * 0.75
+
+    print(book_data)  # Print to the terminal as confirmation - only we can see this
 
     # Format and print the DataFrame using the html template provided in the templates subdirectory
-    return render_template('template.html',  tables=[book_data.to_html(classes='data')], titles=book_data.columns.values)
+    return render_template("template.html", tables=[book_data.to_html(classes='data')], titles=book_data.columns.values)
+
 
 @app.route("/learn")
 def learn():
     # Return a string the describes one thing you learned in ENSF 692.
-    pass
+    return ("In ENSF 692, I learned the fundamentals of Python programming language and its important libraries (NumPy, Pandas, Matplotlib) which are significantly important to a Software Engineer and a Data Engineer.")
 
+
+if __name__ == "__main__":
+    app.run(debug=True)
